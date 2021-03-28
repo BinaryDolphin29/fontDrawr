@@ -24,7 +24,7 @@ func NewDrawer(fontPath string, size float64, width, height int) (*Config, error
 	readFont, _ := ioutil.ReadFile(fontPath)
 	f, pErr := truetype.Parse(readFont)
 	if pErr != nil {
-		return nil, nil
+		return nil, pErr
 	}
 
 	face := truetype.NewFace(f, &truetype.Options{
