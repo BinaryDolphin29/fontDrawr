@@ -1,7 +1,6 @@
 package fontDrawer
 
 import (
-	"fmt"
 	"image"
 	"io/ioutil"
 
@@ -18,7 +17,6 @@ type Config struct {
 }
 
 type Drawer struct {
-	*Config
 	Drawer *font.Drawer
 
 	font    truetype.Font
@@ -77,8 +75,7 @@ func (c *Drawer) SetContent(str []byte) {
 
 // CenterX Return the computed center from the content.
 func (c *Drawer) CenterX() fixed.Int26_6 {
-	fmt.Println(c)
-	return (fixed.I(c.Width) - c.Measure()) / fixed.I(2)
+	return (fixed.I(c.img.Bounds().Max.X) - c.Measure()) / fixed.I(2)
 }
 
 // ChageFontOptions Changing Size and Hinting of the font.
@@ -107,8 +104,11 @@ func (c *Drawer) ClearContent() {
 
 // ClearImg Clear Only the image.
 func (c *Drawer) ClearImg() {
-	for pixX := 0; pixX < c.Width; pixX++ {
-		for pixY := 0; pixY < c.Height; pixY++ {
+	maxX := c.img.Bounds().Max.X
+	maxY := c.img.Bounds().Max.Y
+
+	for pixX := 0; pixX < maxX; pixX++ {
+		for pixY := 0; pixY < maxY; pixY++ {
 			c.img.Set(pixX, pixY, image.Transparent)
 		}
 	}
