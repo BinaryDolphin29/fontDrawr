@@ -17,7 +17,7 @@ type Config struct {
 }
 
 type Drawer struct {
-	Config
+	*Config
 	Drawer *font.Drawer
 
 	font    truetype.Font
