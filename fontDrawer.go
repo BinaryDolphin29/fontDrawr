@@ -1,6 +1,7 @@
 package fontDrawer
 
 import (
+	"fmt"
 	"image"
 	"io/ioutil"
 
@@ -76,7 +77,8 @@ func (c *Drawer) SetContent(str []byte) {
 
 // CenterX Return the computed center from the content.
 func (c *Drawer) CenterX() fixed.Int26_6 {
-	return (fixed.I(c.Config.Width) - c.Measure()) / fixed.I(2)
+	fmt.Println(c.Width)
+	return (fixed.I(c.Width) - c.Measure()) / fixed.I(2)
 }
 
 // ChageFontOptions Changing Size and Hinting of the font.
@@ -105,8 +107,8 @@ func (c *Drawer) ClearContent() {
 
 // ClearImg Clear Only the image.
 func (c *Drawer) ClearImg() {
-	for pixX := 0; pixX < c.Config.Width; pixX++ {
-		for pixY := 0; pixY < c.Config.Height; pixY++ {
+	for pixX := 0; pixX < c.Width; pixX++ {
+		for pixY := 0; pixY < c.Height; pixY++ {
 			c.img.Set(pixX, pixY, image.Transparent)
 		}
 	}
