@@ -10,17 +10,21 @@ import (
 )
 
 type Config struct {
+	FontPath string
+	Size float64
 	Width   int
 	Height  int
-	content string
+}
 
+type Drawer struct {
+	content string
 	Drawer font.Drawer
 	Face   font.Face
 	font   truetype.Font
 	img    image.RGBA
 }
 
-func NewDrawer(fontPath string, size float64, width, height int) (*Config, error) {
+func NewDrawer(c *Config) (*F, error) {
 	readFont, _ := ioutil.ReadFile(fontPath)
 	f, pErr := truetype.Parse(readFont)
 	if pErr != nil {
@@ -72,16 +76,15 @@ func (c *Config) CenterX() fixed.Int26_6 {
 }
 
 func (c *Config) SetFontSize(size float64) {
-	c.Face.Close()
-
 	c.Face = truetype.NewFace(&c.font, &truetype.Options{
 		Size:    size,
 		Hinting: font.HintingVertical,
 	})
+	
 	c.Drawer.Face = c.Face
 }
 
-func (c *Config) SetXY(x, y fixed.Int26_6) {
+func (c *Config) SetPosition(x, y fixed.Int26_6) {
 	c.Drawer.Dot.X = x
 	c.Drawer.Dot.Y = y
 }
