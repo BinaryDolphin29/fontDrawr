@@ -18,9 +18,9 @@ type Config struct {
 
 type Drawer struct {
 	Config
-	font truetype.Font
+	Drawer *font.Drawer
 
-	Drawer  *font.Drawer
+	font    truetype.Font
 	img     image.RGBA
 	content []byte
 }
@@ -54,9 +54,9 @@ func NewDrawer(c *Config) (*Drawer, error) {
 }
 
 // Draw Drawing content on an image.
-func (c *Drawer) Draw() image.RGBA {
+func (c *Drawer) Draw() *image.RGBA {
 	c.Drawer.DrawBytes(c.content)
-	return c.img
+	return &c.img
 }
 
 // Bounds Return the Drawer.BoundBytes.
@@ -76,7 +76,7 @@ func (c *Drawer) SetContent(str []byte) {
 
 // CenterX Return the computed center from the content.
 func (c *Drawer) CenterX() fixed.Int26_6 {
-	return (fixed.I(c.Width) - c.Measure()) / 2
+	return (fixed.I(c.Width) - c.Measure()) / fixed.I(2)
 }
 
 // ChageFontOptions Changing Size and Hinting of the font.
