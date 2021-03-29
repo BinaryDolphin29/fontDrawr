@@ -11,32 +11,34 @@ import (
 
 type Config struct {
 	FontPath string
-	Size float64
-	Width   int
-	Height  int
+	Size     float64
+	Width    int
+	Height   int
 }
 
 type Drawer struct {
-	content string
-	Drawer font.Drawer
-	Face   font.Face
-	font   truetype.Font
-	img    image.RGBA
+	Config
+	font truetype.Font
+
+	Drawer  *font.Drawer
+	img     image.RGBA
+	content []byte
 }
 
-func NewDrawer(c *Config) (*F, error) {
-	readFont, _ := ioutil.ReadFile(fontPath)
-	f, pErr := truetype.Parse(readFont)
-	if pErr != nil {
-		return nil, pErr
+// NewDrawer Create new *Drawer struct.
+func NewDrawer(c *Config) (*Drawer, error) {
+	readFont, _ := ioutil.ReadFile(c.FontPath)
+	f, err := truetype.Parse(readFont)
+	if err != nil {
+		return nil, err
 	}
 
 	face := truetype.NewFace(f, &truetype.Options{
-		Size:    size,
+		Size:    c.Size,
 		Hinting: font.HintingVertical,
 	})
 
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	img := image.NewRGBA(image.Rect(0, 0, c.Width, c.Height))
 
 	drawer := &font.Drawer{
 		Dst:  img,
@@ -44,56 +46,65 @@ func NewDrawer(c *Config) (*F, error) {
 		Face: face,
 	}
 
-	return &Config{
-		Width:  width,
-		Height: height,
-		Drawer: *drawer,
-		Face:   face,
+	return &Drawer{
 		font:   *f,
 		img:    *img,
+		Drawer: drawer,
 	}, nil
 }
 
-func (c *Config) Draw() image.RGBA {
-	c.Drawer.DrawBytes([]byte(c.content))
+// Draw Drawing content on an image.
+func (c *Drawer) Draw() image.RGBA {
+	c.Drawer.DrawBytes(c.content)
 	return c.img
 }
 
-func (c *Config) Bounds() (fixed.Rectangle26_6, fixed.Int26_6) {
-	return c.Drawer.BoundBytes([]byte(c.content))
+// Bounds Return the Drawer.BoundBytes.
+func (c *Drawer) Bounds() (fixed.Rectangle26_6, fixed.Int26_6) {
+	return c.Drawer.BoundBytes(c.content)
 }
 
-func (c *Config) Measure() fixed.Int26_6 {
-	return c.Drawer.MeasureBytes([]byte(c.content))
+// Measure Return the Drawer.MeasureBytes.
+func (c *Drawer) Measure() fixed.Int26_6 {
+	return c.Drawer.MeasureBytes(c.content)
 }
 
-func (c *Config) SetContent(str string) {
-	c.content += str
+// SetContent Append to the content.
+func (c *Drawer) SetContent(str []byte) {
+	c.content = append(c.content, str...)
 }
 
-func (c *Config) CenterX() fixed.Int26_6 {
+// CenterX Return the computed center from the content.
+func (c *Drawer) CenterX() fixed.Int26_6 {
 	return (fixed.I(c.Width) - c.Measure()) / 2
 }
 
-func (c *Config) SetFontSize(size float64) {
-	c.Face = truetype.NewFace(&c.font, &truetype.Options{
+// ChageFontOptions Changing Size and Hinting of the font.
+func (c *Drawer) ChageFontOptions(size float64, hinting *font.Hinting) {
+	c.Drawer.Face = truetype.NewFace(&c.font, &truetype.Options{
 		Size:    size,
-		Hinting: font.HintingVertical,
+		Hinting: *hinting,
 	})
-	
-	c.Drawer.Face = c.Face
 }
 
-func (c *Config) SetPosition(x, y fixed.Int26_6) {
+// ChageFaceColor Change the face color.
+func (c *Drawer) ChageFaceColor(uni *image.Uniform) {
+	c.Drawer.Src = uni
+}
+
+// SetPosition Set the font start position.
+func (c *Drawer) SetPosition(x, y fixed.Int26_6) {
 	c.Drawer.Dot.X = x
 	c.Drawer.Dot.Y = y
 }
 
-func (c *Config) ClearContent() {
-	c.content = ""
+// ClearContent clear the content.
+func (c *Drawer) ClearContent() {
+	c.content = []byte{}
 }
 
-func (c *Config) Clear() {
+// ClearImg Clear Only the image.
+func (c *Drawer) ClearImg() {
 	for pixX := 0; pixX < c.Width; pixX++ {
 		for pixY := 0; pixY < c.Height; pixY++ {
 			c.img.Set(pixX, pixY, image.Transparent)
@@ -101,7 +112,8 @@ func (c *Config) Clear() {
 	}
 }
 
-func (c *Config) ClearAll() {
+// ClearAll Clear the content and image.
+func (c *Drawer) ClearAll() {
 	c.ClearContent()
-	c.Clear()
+	c.ClearImg()
 }
