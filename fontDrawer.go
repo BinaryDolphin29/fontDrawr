@@ -77,7 +77,7 @@ func (c *Drawer) SetContent(str []byte) {
 
 // CenterX Return the computed center from the content.
 func (c *Drawer) CenterX() fixed.Int26_6 {
-	fmt.Println(c.Width)
+	fmt.Println(c)
 	return (fixed.I(c.Width) - c.Measure()) / fixed.I(2)
 }
 
