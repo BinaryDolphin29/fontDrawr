@@ -45,9 +45,10 @@ func NewDrawer(c *Config) (*Drawer, error) {
 	}
 
 	return &Drawer{
-		font:   f,
-		img:    img,
-		Drawer: drawer,
+		font:    f,
+		img:     img,
+		Drawer:  drawer,
+		content: []byte{},
 	}, nil
 }
 
@@ -68,8 +69,8 @@ func (d *Drawer) Measure() fixed.Int26_6 {
 }
 
 // SetContent Append to the content.
-func (d *Drawer) SetContent(str []byte) {
-	d.content = append(d.content, str...)
+func (d *Drawer) SetContent(b []byte) {
+	d.content = append(d.content, b...)
 }
 
 // CenterX Return the computed center from the content.
