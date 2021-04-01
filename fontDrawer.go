@@ -74,7 +74,15 @@ func (d *Drawer) SetContent(b []byte) {
 
 // CenterX Return the computed center from the content.
 func (d *Drawer) CenterX() fixed.Int26_6 {
-	return (fixed.I(d.img.Bounds().Max.X) - d.Measure()) / fixed.I(2)
+	return (fixed.I(d.img.Bounds().Max.X) - d.Measure()) / 2
+}
+
+func (d *Drawer) CenterY() fixed.Int26_6 {
+	b, _ := d.Bounds()
+	max := b.Max
+	min := b.Min
+
+	return ((fixed.I(d.img.Bounds().Max.Y) - (max.Y - min.Y)) / 2) + (max.Y - min.Y)
 }
 
 // ChageFontOptions Changing Size and Hinting of the font.
