@@ -45,10 +45,9 @@ func NewDrawer(c *Config) (*Drawer, error) {
 	}
 
 	return &Drawer{
-		font:    f,
-		img:     img,
-		Drawer:  drawer,
-		content: []byte{},
+		font:   f,
+		img:    img,
+		Drawer: drawer,
 	}, nil
 }
 
