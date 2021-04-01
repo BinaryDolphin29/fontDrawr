@@ -103,10 +103,7 @@ func (d *Drawer) ClearContent() {
 
 // ClearImg Clear Only the image.
 func (d *Drawer) ClearImg() {
-	maxW := d.img.Bounds().Max.X
-	maxH := d.img.Bounds().Max.Y
-
-	d.img = image.NewRGBA(image.Rect(0, 0, maxW, maxH))
+	d.img.Pix = []uint8{}
 }
 
 // ClearAll Clear the content and image.
