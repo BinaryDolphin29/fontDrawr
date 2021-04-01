@@ -17,10 +17,9 @@ type Config struct {
 }
 
 type Drawer struct {
-	Drawer *font.Drawer
-
-	font    truetype.Font
-	img     image.RGBA
+	Drawer  *font.Drawer
+	font    *truetype.Font
+	img     *image.RGBA
 	content []byte
 }
 
@@ -46,76 +45,72 @@ func NewDrawer(c *Config) (*Drawer, error) {
 	}
 
 	return &Drawer{
-		font:   *f,
-		img:    *img,
+		font:   f,
+		img:    img,
 		Drawer: drawer,
 	}, nil
 }
 
 // Draw Drawing content on an image.
-func (c *Drawer) Draw() *image.RGBA {
-	c.Drawer.DrawBytes(c.content)
-	return &c.img
+func (d *Drawer) Draw() *image.RGBA {
+	d.Drawer.DrawBytes(d.content)
+	return d.img
 }
 
 // Bounds Return the Drawer.BoundBytes.
-func (c *Drawer) Bounds() (fixed.Rectangle26_6, fixed.Int26_6) {
-	return c.Drawer.BoundBytes(c.content)
+func (d *Drawer) Bounds() (fixed.Rectangle26_6, fixed.Int26_6) {
+	return d.Drawer.BoundBytes(d.content)
 }
 
 // Measure Return the Drawer.MeasureBytes.
-func (c *Drawer) Measure() fixed.Int26_6 {
-	return c.Drawer.MeasureBytes(c.content)
+func (d *Drawer) Measure() fixed.Int26_6 {
+	return d.Drawer.MeasureBytes(d.content)
 }
 
 // SetContent Append to the content.
-func (c *Drawer) SetContent(str []byte) {
-	c.content = append(c.content, str...)
+func (d *Drawer) SetContent(str []byte) {
+	d.content = append(d.content, str...)
 }
 
 // CenterX Return the computed center from the content.
-func (c *Drawer) CenterX() fixed.Int26_6 {
-	return (fixed.I(c.img.Bounds().Max.X) - c.Measure()) / fixed.I(2)
+func (d *Drawer) CenterX() fixed.Int26_6 {
+	return (fixed.I(d.img.Bounds().Max.X) - d.Measure()) / fixed.I(2)
 }
 
 // ChageFontOptions Changing Size and Hinting of the font.
-func (c *Drawer) ChageFontOptions(size float64, hinting *font.Hinting) {
-	c.Drawer.Face = truetype.NewFace(&c.font, &truetype.Options{
+func (d *Drawer) ChageFontOptions(size float64, hinting *font.Hinting) {
+	d.Drawer.Face = truetype.NewFace(d.font, &truetype.Options{
 		Size:    size,
 		Hinting: *hinting,
 	})
 }
 
 // ChageFaceColor Change the face color.
-func (c *Drawer) ChageFaceColor(uni *image.Uniform) {
-	c.Drawer.Src = uni
+func (d *Drawer) ChageFaceColor(uni *image.Uniform) {
+	d.Drawer.Src = uni
 }
 
 // SetPosition Set the font start position.
-func (c *Drawer) SetPosition(x, y fixed.Int26_6) {
-	c.Drawer.Dot.X = x
-	c.Drawer.Dot.Y = y
+func (d *Drawer) SetPosition(x, y fixed.Int26_6) {
+	d.Drawer.Dot.X = x
+	d.Drawer.Dot.Y = y
 }
 
 // ClearContent clear the content.
-func (c *Drawer) ClearContent() {
-	c.content = []byte{}
+func (d *Drawer) ClearContent() {
+	d.content = []byte{}
 }
 
 // ClearImg Clear Only the image.
-func (c *Drawer) ClearImg() {
-	maxX := c.img.Bounds().Max.X
-	maxY := c.img.Bounds().Max.Y
+func (d *Drawer) ClearImg() {
+	maxW := d.img.Bounds().Max.X
+	maxH := d.img.Bounds().Max.Y
 
-	for pixX := 0; pixX < maxX; pixX++ {
-		for pixY := 0; pixY < maxY; pixY++ {
-			c.img.Set(pixX, pixY, image.Transparent)
-		}
-	}
+	d.img = image.NewRGBA(image.Rect(0, 0, maxW, maxH))
 }
 
 // ClearAll Clear the content and image.
-func (c *Drawer) ClearAll() {
-	c.ClearContent()
-	c.ClearImg()
+func (d *Drawer) ClearAll() {
+	d.ClearContent()
+	d.ClearImg()
 }
