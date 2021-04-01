@@ -103,7 +103,14 @@ func (d *Drawer) ClearContent() {
 
 // ClearImg Clear Only the image.
 func (d *Drawer) ClearImg() {
-	d.img.Pix = []uint8{}
+	maxW := d.img.Bounds().Max.X
+	maxH := d.img.Bounds().Max.Y
+
+	for pixY := 0; pixY < maxH; pixY++ {
+		for pixX := 0; pixX < maxW; pixX++ {
+			d.img.Set(pixX, pixY, image.Transparent)
+		}
+	}
 }
 
 // ClearAll Clear the content and image.
