@@ -77,6 +77,7 @@ func (d *Drawer) CenterX() fixed.Int26_6 {
 	return (fixed.I(d.img.Bounds().Max.X) - d.Measure()) / 2
 }
 
+// CenterY Return the computed center from the content.
 func (d *Drawer) CenterY() fixed.Int26_6 {
 	b, _ := d.Bounds()
 	max := b.Max
@@ -86,10 +87,10 @@ func (d *Drawer) CenterY() fixed.Int26_6 {
 }
 
 // ChageFontOptions Changing Size and Hinting of the font.
-func (d *Drawer) ChageFontOptions(size float64, hinting *font.Hinting) {
+func (d *Drawer) ChageFontOptions(size float64, hinting font.Hinting) {
 	d.Drawer.Face = truetype.NewFace(d.font, &truetype.Options{
 		Size:    size,
-		Hinting: *hinting,
+		Hinting: hinting,
 	})
 }
 
@@ -119,6 +120,9 @@ func (d *Drawer) ClearImg() {
 			d.img.Set(pixX, pixY, image.Transparent)
 		}
 	}
+
+	r := image.Rect(0, 0, 10, 10)
+	r.Bounds()
 }
 
 // ClearAll Clear the content and image.
