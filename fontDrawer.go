@@ -86,10 +86,16 @@ func (d *Drawer) CntrY() fixed.Int26_6 {
 	return ((fixed.I(d.img.Bounds().Max.Y) - (max.Y - min.Y)) / 2) + (max.Y - min.Y)
 }
 
-// ChageFontOptions Changing Size and Hinting of the font.
-func (d *Drawer) ChageFontOptions(size float64, hinting font.Hinting) {
+// ChageFontOptions Change the font size.
+func (d *Drawer) ChangeFontSize(size float64) {
 	d.Drawer.Face = truetype.NewFace(d.font, &truetype.Options{
-		Size:    size,
+		Size: size,
+	})
+}
+
+// ChageFontOptions Change the font Hinting.
+func (d *Drawer) ChageFontHinting(size float64, hinting font.Hinting) {
+	d.Drawer.Face = truetype.NewFace(d.font, &truetype.Options{
 		Hinting: hinting,
 	})
 }
@@ -114,12 +120,7 @@ func (d *Drawer) ClearContent() {
 func (d *Drawer) ClearImg() {
 	maxW := d.img.Bounds().Max.X
 	maxH := d.img.Bounds().Max.Y
-
-	for pixY := 0; pixY < maxH; pixY++ {
-		for pixX := 0; pixX < maxW; pixX++ {
-			d.img.Set(pixX, pixY, image.Transparent)
-		}
-	}
+	d.img = image.NewRGBA(image.Rect(0, 0, maxW, maxH))
 }
 
 // ClearAll Clear the content and image.
