@@ -68,17 +68,17 @@ func (d *Drawer) Measure() fixed.Int26_6 {
 }
 
 // SetContent Append to the content.
-func (d *Drawer) SetContent(b []byte) {
+func (d *Drawer) AppendContent(b []byte) {
 	d.content = append(d.content, b...)
 }
 
 // CenterX Return the computed center from the content.
-func (d *Drawer) CenterX() fixed.Int26_6 {
+func (d *Drawer) CntrX() fixed.Int26_6 {
 	return (fixed.I(d.img.Bounds().Max.X) - d.Measure()) / 2
 }
 
 // CenterY Return the computed center from the content.
-func (d *Drawer) CenterY() fixed.Int26_6 {
+func (d *Drawer) CntrY() fixed.Int26_6 {
 	b, _ := d.Bounds()
 	max := b.Max
 	min := b.Min
@@ -95,7 +95,7 @@ func (d *Drawer) ChageFontOptions(size float64, hinting font.Hinting) {
 }
 
 // ChageFaceColor Change the face color.
-func (d *Drawer) ChageFaceColor(uni *image.Uniform) {
+func (d *Drawer) ChangeFaceColor(uni *image.Uniform) {
 	d.Drawer.Src = uni
 }
 
@@ -120,13 +120,10 @@ func (d *Drawer) ClearImg() {
 			d.img.Set(pixX, pixY, image.Transparent)
 		}
 	}
-
-	r := image.Rect(0, 0, 10, 10)
-	r.Bounds()
 }
 
 // ClearAll Clear the content and image.
-func (d *Drawer) ClearAll() {
+func (d *Drawer) ClearImgContent() {
 	d.ClearContent()
 	d.ClearImg()
 }
