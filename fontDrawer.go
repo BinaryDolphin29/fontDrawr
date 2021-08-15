@@ -120,7 +120,12 @@ func (d *Drawer) ClearContent() {
 func (d *Drawer) ClearImg() {
 	maxW := d.img.Bounds().Max.X
 	maxH := d.img.Bounds().Max.Y
-	d.img = image.NewRGBA(image.Rect(0, 0, maxW, maxH))
+
+	for pixY := 0; pixY < maxH; pixY++ {
+		for pixX := 0; pixX < maxW; pixX++ {
+			d.img.Set(pixX, pixY, image.Transparent)
+		}
+	}
 }
 
 // ClearAll Clear the content and image.
