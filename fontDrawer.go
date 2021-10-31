@@ -93,8 +93,8 @@ func (d *Drawer) ChangeFontSize(size float64) {
 	})
 }
 
-// ChageFontOptions Change the font Hinting.
-func (d *Drawer) ChageFontHinting(size float64, hinting font.Hinting) {
+// ChangeFontOptions Change the font Hinting.
+func (d *Drawer) ChangeFontHinting(hinting font.Hinting) {
 	d.Drawer.Face = truetype.NewFace(d.font, &truetype.Options{
 		Hinting: hinting,
 	})
