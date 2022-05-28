@@ -1,4 +1,4 @@
 # fontDrawer
 ```
-go get -u github.com/BinaryDolphin29/fontDrawer
+go get -u github.com/plasticbit/fontDrawer
 ```

@@ -1,8 +1,7 @@
 module github.com/BinaryDolphin29/fontDrawer
 
-go 1.16
+go 1.18
 
-require (
-	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
-	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
-)
+require golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9
+
+require golang.org/x/text v0.3.7 // indirect

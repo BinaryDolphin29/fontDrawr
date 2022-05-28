@@ -4,37 +4,52 @@ import (
 	"image"
 	"io/ioutil"
 
-	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/font/sfnt"
 	"golang.org/x/image/math/fixed"
 )
 
 type Config struct {
 	FontPath string
-	Size     float64
-	Width    int
-	Height   int
+	// FaceOptions If nil, default options will be used.
+	FaceOptions *opentype.FaceOptions
+	Width       int
+	Height      int
 }
 
 type Drawer struct {
-	Drawer  *font.Drawer
-	font    *truetype.Font
-	img     *image.RGBA
-	content []byte
+	Drawer   *font.Drawer
+	font     *sfnt.Font
+	img      *image.RGBA
+	content  []byte
+	faceOpts *opentype.FaceOptions
 }
 
 // NewDrawer Create new *Drawer struct.
 func NewDrawer(c *Config) (*Drawer, error) {
-	readFont, _ := ioutil.ReadFile(c.FontPath)
-	f, err := truetype.Parse(readFont)
+	readFont, err := ioutil.ReadFile(c.FontPath)
 	if err != nil {
 		return nil, err
 	}
 
-	face := truetype.NewFace(f, &truetype.Options{
-		Size:    c.Size,
-		Hinting: font.HintingVertical,
-	})
+	otf, err := opentype.Parse(readFont)
+	if err != nil {
+		return nil, err
+	}
+
+	if c.FaceOptions == nil {
+		c.FaceOptions = &opentype.FaceOptions{
+			Size:    16,
+			DPI:     72,
+			Hinting: font.HintingNone,
+		}
+	}
+
+	face, err := opentype.NewFace(otf, c.FaceOptions)
+	if err != nil {
+		return nil, err
+	}
 
 	img := image.NewRGBA(image.Rect(0, 0, c.Width, c.Height))
 
@@ -45,9 +60,10 @@ func NewDrawer(c *Config) (*Drawer, error) {
 	}
 
 	return &Drawer{
-		font:   f,
-		img:    img,
-		Drawer: drawer,
+		font:     otf,
+		img:      img,
+		Drawer:   drawer,
+		faceOpts: c.FaceOptions,
 	}, nil
 }
 
@@ -72,32 +88,30 @@ func (d *Drawer) AppendContent(b []byte) {
 	d.content = append(d.content, b...)
 }
 
-// CenterX Return the computed center from the content.
-func (d *Drawer) CntrX() fixed.Int26_6 {
-	return (fixed.I(d.img.Bounds().Max.X) - d.Measure()) / 2
-}
-
-// CenterY Return the computed center from the content.
-func (d *Drawer) CntrY() fixed.Int26_6 {
-	b, _ := d.Bounds()
-	max := b.Max
-	min := b.Min
-
-	return ((fixed.I(d.img.Bounds().Max.Y) - (max.Y - min.Y)) / 2) + (max.Y - min.Y)
-}
-
 // ChageFontOptions Change the font size.
-func (d *Drawer) ChangeFontSize(size float64) {
-	d.Drawer.Face = truetype.NewFace(d.font, &truetype.Options{
-		Size: size,
-	})
+func (d *Drawer) ChangeFontSize(size float64) error {
+	d.faceOpts.Size = size
+	newFace, err := opentype.NewFace(d.font, d.faceOpts)
+
+	if err != nil {
+		return err
+	}
+
+	d.Drawer.Face = newFace
+	return nil
 }
 
 // ChangeFontOptions Change the font Hinting.
-func (d *Drawer) ChangeFontHinting(hinting font.Hinting) {
-	d.Drawer.Face = truetype.NewFace(d.font, &truetype.Options{
-		Hinting: hinting,
-	})
+func (d *Drawer) ChangeFontHinting(hinting font.Hinting) error {
+	d.faceOpts.Hinting = hinting
+	newFace, err := opentype.NewFace(d.font, d.faceOpts)
+
+	if err != nil {
+		return err
+	}
+
+	d.Drawer.Face = newFace
+	return nil
 }
 
 // ChageFaceColor Change the face color.
@@ -105,10 +119,39 @@ func (d *Drawer) ChangeFaceColor(uni *image.Uniform) {
 	d.Drawer.Src = uni
 }
 
+// CenterX Return the computed center from the content.
+func (d *Drawer) CenterX() fixed.Int26_6 {
+	return (fixed.I(d.img.Bounds().Max.X) - d.Measure()) / 2
+}
+
+// CenterY Return the computed center from the content.
+func (d *Drawer) CenterY() fixed.Int26_6 {
+	b, _ := d.Bounds()
+	max := b.Max
+	min := b.Min
+
+	return ((fixed.I(d.img.Bounds().Max.Y) - (max.Y - min.Y)) / 2) + (max.Y - min.Y)
+}
+
 // SetPosition Set the font start position.
 func (d *Drawer) SetPosition(x, y fixed.Int26_6) {
 	d.Drawer.Dot.X = x
 	d.Drawer.Dot.Y = y
+}
+
+// SetPositionCenter Set the x and y positions to the center.
+func (d *Drawer) SetPositionCenter() {
+	d.SetPosition(d.CenterX(), d.CenterY())
+}
+
+// SetCenterXand The position X is center, and set the position Y.
+func (d *Drawer) SetCenterXand(y fixed.Int26_6) {
+	d.SetPosition(d.CenterX(), y)
+}
+
+// SetCenterYand The position Y is center, and set the position X.
+func (d *Drawer) SetCenterYand(x fixed.Int26_6) {
+	d.SetPosition(x, d.CenterY())
 }
 
 // ClearContent clear the content.
@@ -129,7 +172,7 @@ func (d *Drawer) ClearImg() {
 }
 
 // ClearAll Clear the content and image.
-func (d *Drawer) ClearImgContent() {
+func (d *Drawer) ClearImgAndCtnt() {
 	d.ClearContent()
 	d.ClearImg()
 }
