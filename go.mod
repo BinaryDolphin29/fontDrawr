@@ -1,4 +1,4 @@
-module github.com/BinaryDolphin29/fontDrawer
+module github.com/plasticbit/fontDrawer
 
 go 1.18
 
